@@ -284,3 +284,41 @@ end
 renderer.texture = function(id, x, y, w, h, r, g, b, a, mode)
     render.texture(id, vec2_t(x, y), vec2_t(w, h), color_t(r, g, b, a))
 end
+
+local client = {} client.__index = client
+client.callback_table = {
+    { "paint", e_callbacks.PAINT },
+    { "run_command", e_callbacks.SETUP_COMMAND },
+    { "setup_command", e_callbacks.RUN_COMMAND },
+    { "aim_hit", e_callbacks.AIMBOT_HIT },
+    { "aim_fire", e_callbacks.AIMBOT_SHOOT },
+    { "aim_miss", e_callbacks.AIMBOT_MISS },
+}
+
+client.set_event_callback = function(event_name, callback)
+    for i = 1, #client.callback_table do
+        if (event_name == client.callback_table[i][1]) then
+            if (event_name == "run_command") then
+                callbacks.add(e_callbacks.SETUP_COMMAND, function(ctx)
+                    callback({ chokedcommands = engine.get_choked_commands(), command_number = ctx.command_number })
+                end)
+            elseif (event_name == "aim_hit") then
+                callbacks.add(e_callbacks.AIMBOT_HIT, function(ctx)
+                    callback({ id = ctx.id, target = ctx.player:get_index(), hit_chance = ctx.aim_hitchance, hitgroup = ctx.aim_hitgroup, damage = ctx.aim_damage })
+                end)
+            elseif (event_name == "aim_fire") then
+                callbacks.add(e_callbacks.AIMBOT_SHOOT, function(ctx)
+                    callback({ id = ctx.id, target = ctx.player:get_index(), hit_chance = ctx.hitchance, hitgroup = ctx.hitgroup, damage = ctx.damage, backtrack = ctx.backtrack_ticks, high_priority = false, interpolated = false, extrapolated = extrapolated_ticks > 0 and true or false, teleported = false, tick = global_vars.tick_count(), x = ctx.hitpoint_pos.x, y = ctx.hitpoint_pos.y, z = ctx.hitpoint_pos.z })
+                end)
+            elseif (event_name == "aim_miss") then
+                callbacks.add(e_callbacks.AIMBOT_MISS, function(ctx)
+                    callback({ id = ctx.id, target = ctx.player:get_index(), hit_chance = ctx.aim_hitchance, hitgroup = ctx.aim_hitgroup, reason = ctx.reason_string })
+                end)
+            else
+                callbacks.add(client.callback_table[i][2], function(ctx)
+                    callback(ctx)
+                end)
+            end
+        end
+    end
+end
