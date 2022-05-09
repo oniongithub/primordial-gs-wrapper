@@ -322,3 +322,71 @@ client.set_event_callback = function(event_name, callback)
         end
     end
 end
+
+client.unset_event_callback = function()
+    -- to do
+end
+
+client.log = function(...)
+    local text, text_table = "", {...}
+
+    for i = 1, #text_table do
+        if (type(text_table[i] == "string")) then
+            text = text .. text_table[i]
+        end
+    end
+
+    client.log(text)
+end
+
+client.color_log = function(r, g, b, ...)
+    local text, text_table = "", {...}
+
+    for i = 1, #text_table do
+        if (type(text_table[i] == "string")) then
+            text = text .. text_table[i]
+        end
+    end
+
+    client.log(color_t(r, g, b), text)
+end
+
+client.error_log = function(...)
+    local text, text_table = "", {...}
+
+    for i = 1, #text_table do
+        if (type(text_table[i] == "string")) then
+            text = text .. text_table[i]
+        end
+    end
+
+    client.log(color_t(255, 0, 0), "error - " .. text)
+end
+
+client.exec = function(...)
+    local text, text_table = "", {...}
+
+    for i = 1, #text_table do
+        if (type(text_table[i] == "string")) then
+            text = text .. text_table[i]
+        end
+    end
+
+    engine.execute_cmd(text)
+end
+
+client.userid_to_entindex = function(userid)
+    local ent = entity_list.get_player_from_userid(userid)
+
+    if (ent and ent:is_player()) then
+        return ent:get_index()
+    end
+end
+
+client.draw_debug_text = function()
+    -- who the fuck uses this
+end
+
+client.draw_hitboxes = function()
+    -- and who the fuck uses this either
+end
